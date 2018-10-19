@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archimate:model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:archimate="http://www.archimatetool.com/archimate" name="FIAP4AI" id="4bc1c3cd-44a8-476f-ac3f-baba13f8ba9f" version="4.0.1">
+  <folder name="Strategy" id="54aadb9e-8327-43f0-a937-da0064a1ecc3" type="strategy"/>
+  <folder name="Business" id="b6b2e6af-7b83-4728-abb1-94fe49954ef6" type="business">
+    <element xsi:type="archimate:BusinessActor" name="Sistema" id="b8983b67-9d9a-46d1-8607-034dbca71b8e"/>
+    <element xsi:type="archimate:BusinessActor" name="Paciente" id="ad993a30-f8df-49ab-86ba-46da91e3a853"/>
+  </folder>
+  <folder name="Application" id="b4cbc1a0-aaf3-4f83-9ccd-6fee1228d756" type="application"/>
+  <folder name="Technology &amp; Physical" id="85d9d240-b510-4981-9f2a-67a3938d7a1b" type="technology"/>
+  <folder name="Motivation" id="25abbe14-a20b-4905-9893-1acc0baea5e9" type="motivation"/>
+  <folder name="Implementation &amp; Migration" id="482f827b-24db-42f0-b21c-fba10e26e973" type="implementation_migration"/>
+  <folder name="Other" id="bfa35c53-2f2e-4e64-ac1e-6ea50b411afc" type="other"/>
+  <folder name="Relations" id="e6af769d-fc86-4d46-942a-c725ace3af1f" type="relations"/>
+  <folder name="Views" id="c2e08766-78d1-42e7-941f-598e6c80ad43" type="diagrams">
+    <element xsi:type="archimate:ArchimateDiagramModel" name="Default View" id="f00b71b5-7f25-4a4b-afcd-10d0bd4268c6">
+      <child xsi:type="archimate:DiagramObject" id="751965c9-6e7d-4e9c-82ec-2279769491e5" archimateElement="b8983b67-9d9a-46d1-8607-034dbca71b8e">
+        <bounds x="151" y="149" width="120" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="b7b9900b-a950-4c18-8095-04fd07604c47" archimateElement="ad993a30-f8df-49ab-86ba-46da91e3a853">
+        <bounds x="481" y="67" width="120" height="55"/>
+      </child>
+    </element>
+  </folder>
+</archimate:model>
