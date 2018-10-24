@@ -1,0 +1,5 @@
+Tema do Trabalho: "1"
+
+
+01 - Gun violence in the US: Interactive maps and EDA
+https://www.kaggle.com/erikbruin/gun-violence-in-the-us-interactive-maps-and-eda/notebook 
