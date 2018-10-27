@@ -1,0 +1,13 @@
+IBGEPesq                Leitura e processamento dos dados das pesquisas
+                        domiciliares do IBGE
+IBGEtabula              Estimação de totais com CV por múltiplos
+                        domínios
+dicPME                  Dicionário R dos microdados da PME
+dicPNAD                 Dicionário R da PNAD 2001 a 2009
+le.pesquisa             Função para a leitura dos microdados da PNAD
+                        e da PME
+media.pond              Média ponderada por domínios
+merge_blocos            Merge de grandes volumes de dados
+ocupacao2005            Dados referentes às condições de ocupação
+                        da PNAD 2005
+waitbar                 Barra de Espera
