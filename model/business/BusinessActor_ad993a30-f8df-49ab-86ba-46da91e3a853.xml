@@ -1,0 +1,5 @@
+<archimate:BusinessActor
+    xmlns:archimate="http://www.archimatetool.com/archimate"
+    name="Paciente"
+    id="ad993a30-f8df-49ab-86ba-46da91e3a853"
+    documentation="O paciente é o alvo do sistema. A busca de bem-estar do paciente é o objetivo do sistema."/>
