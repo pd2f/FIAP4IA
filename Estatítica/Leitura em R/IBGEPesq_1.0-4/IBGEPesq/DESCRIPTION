@@ -1,0 +1,19 @@
+Package: IBGEPesq
+Type: Package
+Title: Leitura e processamento dos dados das pesquisas PNAD e PME.
+Version: 1.0-4
+Date: 2010-08-12
+Author: Eloane Gonçalves Ramos e Giuseppe de Abreu Antonaci
+Maintainer: Giuseppe de Abreu Antonaci <giuseppe.antonaci@ibge.gov.br>
+Depends: R (>= 2.10.0), survey
+Description: Este pacote contem funções para ler os arquivos de
+        microdados da PNAD, PME ou quaisquer outros nos mesmo moldes
+        desde que se tenha o dicionário de variáveis apropriado. Também
+        possui funções para tabular os dados levando em consideração
+        desenho amostral e calculando o correspondente CV das
+        estimativas. Para uma lista completa das funções utilize
+        'library(help="IBGEPesq")'.
+License: GNU Public License
+Encoding: latin1
+LazyLoad: yes
+Built: R 2.14.1; ; 2012-09-19 19:57:23 UTC; windows
