@@ -8,9 +8,9 @@ options("scipen" = 2)
 
 
 # Ler arquivo xls.
-
+install.packages("readxl")
 library(readxl)
-imoveis <- read_excel("F:/LABIA&ML2018/Arquivo_Valorizacao_Ambiental_1.xlsx")
+imoveis <- read_excel("E:/LABIA&ML2018/Arquivo_Valorizacao_Ambiental_1.xlsx")
  
 View(imoveis)
  
@@ -95,72 +95,10 @@ ggplot (data= imoveis, aes(x=imoveis$Área, y=imoveis$Valor )) +
 attach(imoveis)
 # Modelo de regressão linear simples
 
-modelo0 <- lm(Valor ~ Área)
-summary(modelo0)
-modelo1 <- lm(Valor ~ Área+Semruído+IA)
-summary(modelo1)
-modelo2 <- lm(Valor ~ Área+Semruído+IA+Andar+Suítes+DistBM+AV200m+Vista)
-summary(modelo2)
-
-install.packages("lattice")
-install.packages("latticeExtra")
-install.packages("asbio")
-install.packages("car")
-
-library(lattice)
-library(latticeExtra)
-library(asbio)
-library(car)
-
-# length(coef(x))= qte de coeficientes 
-# df.residual(x)  = graus de liberdade do resíduos
-# length(fitted(x)) = qte de observaçoes ajustadas 
-# RMSE = summary(x)$sigma = Erro quadrático médio
-# R2 = summary(x)$r.squared  = R2 
-# R2adj = summary(x)$adj.r.squared = R2 ajustado
-# press(x) cálculo PREdiction Sum of Squares
-
-# para modelos logisticos:
-# logLik(x) Extract Log-Likelihood  
-# AIC(x)
-# BIC(x)
-# When comparing models fitted by maximum likelihood to the same data, 
-# the smaller the AIC or BIC, the better the fit
- 
-
-measures <- function(x) {
-  L <- list(npar = length(coef(x)),
-            dfres = df.residual(x),
-            nobs = length(fitted(x)),
-            RMSE = summary(x)$sigma,
-            R2 = summary(x)$r.squared,
-            R2adj = summary(x)$adj.r.squared,
-            PRESS = press(x),
-            logLik = logLik(x),
-            AIC = AIC(x),
-            BIC = BIC(x))
-  unlist(L)
-}
-
-
-modl <- list(m0 = modelo0, m1 = modelo1, m2 = modelo2)
-round(t(sapply(modl, measures)), 3)
-
-
-
 
 modelo1 <- lm(Valor ~ Área+Semruído+IA+Andar+Suítes+DistBM+AV200m+Vista)
 summary(modelo1)
 
-forward<-step(modelo1,direction="forward")
-
-forward
-
-summary(forward)
-
-backward<-step(modelo1,direction="backward")
-backward
-summary(backward)
 
 stepwise<-step(modelo1,direction="both")
  
@@ -214,9 +152,6 @@ attach(imoveis)
 Imoveis_Final<-cbind(imoveis,Val_pred)
 
 fix(Imoveis_Final)
-
-
-write.table(file='E:/LabBDT2018/Arquivo_Valorizacao_Ambiental_saida.csv',Imoveis_Final, sep=';',dec=',')
 
 
 ## Árvore de Regressão
