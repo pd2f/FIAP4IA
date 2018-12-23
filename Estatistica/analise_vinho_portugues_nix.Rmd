@@ -1,0 +1,44 @@
+---
+title: "Análise de Qualidade de Vinhos Portugueses"
+author: "Paulo/Marcos/Alex/José"
+date: "13 de dezembro de 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options("scipen" = 2)
+Vinhos <- read.csv2("BaseWine_Red_e_White2018.csv", row.names=1)
+
+```
+
+## Base
+
+Reconhecimento da Base: Um descrito do tamanho da base, quantidade de variáveis, formatos, e alguns descritivos (“achados”) sobre a base/variáveis.
+
+```{r recbase}
+summary(Vinhos)
+str(Vinhos)
+
+```
+
+## Descritivo sobre as variáveis
+
+
+| Atributos | Descrição  |
+|----------|------------|
+| fixedacidity | a maioria dos ácidos envolvidos no vinho ou fixos ou não voláteis (não evaporar prontamente) | 
+| volatileacidity (Acidez volátil) |a quantidade de ácido acético no vinho, que em níveis muito altos pode levar a um gosto desagradável de vinagre. |
+| citricacid (Ácido cítrico) | encontrado em pequenas quantidades, o ácido cítrico pode adicionar "frescura" e sabor aos vinhos. |
+| (residuaAçúcar residual | a quantidade de açúcar restante após a fermentação pára, é raro encontrar vinhos com menos de 1 grama / litro e vinhos com mais de 45 gramas / litro são considerados doces |
+| Cloretos | a quantidade de sal no vinho. |
+| Dióxido de enxofre livre | a forma livre de SO2 existe em equilíbrio entre o SO2 molecular (como gás dissolvido) e o íon bissulfito; impede o crescimento microbiano e a oxidação do vinho. |
+| Dióxido de enxofre total | quantidade de formas livres e encadernadas de S02; em baixas concentrações, o SO2 é quase indetectável no vinho, mas nas concentrações de SO2 livre acima de 50 ppm, o SO2 se torna evidente no nariz e no sabor do vinho. |
+| Densidade | a densidade da água é próxima à da água, dependendo do percentual de álcool e teor de açúcar.|
+| pH | descreve como o vinho é acídico ou básico numa escala de 0 (muito ácido) a 14 (muito básico); a maioria dos vinhos tem entre 3-4 na escala de pH. |
+| Sulfatos | um aditivo de vinho que pode contribuir para os níveis de gás de dióxido de enxofre (S02), que age como um antimicrobiano e antioxidante. |
+| Álcool | o teor alcoólico percentual do vinho. |
+| Qualidade | variável de saída (com base em dados sensoriais, pontuação entre 0 e 10). |
+
+
+
