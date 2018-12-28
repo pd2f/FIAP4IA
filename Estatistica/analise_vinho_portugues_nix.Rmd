@@ -14,15 +14,13 @@ Vinhos <- read.csv2("BaseWine_Red_e_White2018.csv", row.names=1)
 
 ## Base
 
-Reconhecimento da Base: Um descrito do tamanho da base, quantidade de variáveis, formatos, e alguns descritivos (“achados”) sobre a base/variáveis.
+Apresentamos uma base de dados com 6497 observações de vinhos portugueses tintos e brancos. Essas observações são compostas por 11 (onze) variáveis quantitativas continuas contendo valores apurados para suas características ou composições, 1 (uma) variável quantitativa continua que poderá ser convertida em categórica ordinal, pois indica a qualidade do vinho e será a nossa variável 'target', e 1 (uma) variável categorica nominal indicando o tipo do vinho (tinto ou branco). O nosso objetivo é através da inferência estatística descobrir se existe alguma correlação entre qualidade do vinho e os valores dos seus atributos. Essa relação causal deverá explicar o porquê um vinho foi considerado melhor ou pior que o outro.
 
 ```{r recbase}
-summary(Vinhos)
 str(Vinhos)
 
 ```
-
-## Descritivo sobre as variáveis
+### Descritivo sobre as variáveis
 
 
 | Atributos | Descrição  |
@@ -38,7 +36,19 @@ str(Vinhos)
 | pH | descreve como o vinho é acídico ou básico numa escala de 0 (muito ácido) a 14 (muito básico); a maioria dos vinhos tem entre 3-4 na escala de pH. |
 | sulphates (Sulfatos) | um aditivo de vinho que pode contribuir para os níveis de gás de dióxido de enxofre (S02), que age como um antimicrobiano e antioxidante. |
 | alcohol (Álcool) | o teor alcoólico percentual do vinho. |
-| quality (Qualidade) | variável de saída (com base em dados sensoriais, pontuação entre 0 e 10). |
+| quality (Qualidade) | variável de saída (com base em dados sensoriais). |
+
+### Análise dos dados
+
+Os vinhos receberam as notas de qualidade de 3 a 9. 
+```{r rec_avaliacao}
+table(as.factor(Vinhos$quality), Vinhos$Vinho)
+```
+As notas dos vinhos brancos apresentam notas retativamente melhores do que as dos vinhos tintos.
+```{r rec_relativa}
+prop.table(table(as.factor(Vinhos$quality), Vinhos$Vinho),2)
+```
+
 
 
 

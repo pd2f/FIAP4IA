@@ -378,36 +378,7 @@ $(document).ready(function () {
 
 <div id="base" class="section level2">
 <h2>Base</h2>
-<p>Reconhecimento da Base: Um descrito do tamanho da base, quantidade de variáveis, formatos, e alguns descritivos (“achados”) sobre a base/variáveis.</p>
-<pre class="r"><code>summary(Vinhos)</code></pre>
-<pre><code>##   fixedacidity    volatileacidity    citricacid     residualsugar  
-##  Min.   : 3.800   Min.   :0.0800   Min.   :0.0000   Min.   : 0.60  
-##  1st Qu.: 6.400   1st Qu.:0.2300   1st Qu.:0.2500   1st Qu.: 1.80  
-##  Median : 7.000   Median :0.2900   Median :0.3100   Median : 3.00  
-##  Mean   : 7.215   Mean   :0.3397   Mean   :0.3186   Mean   : 5.44  
-##  3rd Qu.: 7.700   3rd Qu.:0.4000   3rd Qu.:0.3900   3rd Qu.: 8.10  
-##  Max.   :15.900   Max.   :1.5800   Max.   :1.6600   Max.   :45.80  
-##    chlorides       freesulfurdioxide totalsulfurdioxide    density      
-##  Min.   :0.00900   Min.   :  1.00    Min.   :  6.0      Min.   :0.9871  
-##  1st Qu.:0.03800   1st Qu.: 17.00    1st Qu.: 77.0      1st Qu.:0.9923  
-##  Median :0.04700   Median : 29.00    Median :118.0      Median :0.9949  
-##  Mean   :0.05603   Mean   : 30.53    Mean   :115.7      Mean   :0.9947  
-##  3rd Qu.:0.06500   3rd Qu.: 41.00    3rd Qu.:156.0      3rd Qu.:0.9970  
-##  Max.   :0.61100   Max.   :289.00    Max.   :440.0      Max.   :1.0140  
-##        pH          sulphates         alcohol           quality     
-##  Min.   :2.720   Min.   :0.2200   Min.   : 0.9567   Min.   :3.000  
-##  1st Qu.:3.110   1st Qu.:0.4300   1st Qu.: 9.5000   1st Qu.:5.000  
-##  Median :3.210   Median :0.5100   Median :10.3000   Median :6.000  
-##  Mean   :3.219   Mean   :0.5313   Mean   :10.4862   Mean   :5.818  
-##  3rd Qu.:3.320   3rd Qu.:0.6000   3rd Qu.:11.3000   3rd Qu.:6.000  
-##  Max.   :4.010   Max.   :2.0000   Max.   :14.9000   Max.   :9.000  
-##    Vinho     
-##  RED  :1599  
-##  WHITE:4898  
-##              
-##              
-##              
-## </code></pre>
+<p>Apresentamos uma base de dados com 6497 observações de vinhos portugueses tintos e brancos. Essas observações são compostas por 11 (onze) variáveis quantitativas continuas contendo valores apurados para suas características ou composições, 1 (uma) variável quantitativa continua que poderá ser convertida em categórica ordinal, pois indica a qualidade do vinho e será a nossa variável ‘target’, e 1 (uma) variável categorica nominal indicando o tipo do vinho (tinto ou branco). O nosso objetivo é através da inferência estatística descobrir se existe alguma correlação entre qualidade do vinho e os valores dos seus atributos. Essa relação causal deverá explicar o porquê um vinho foi considerado melhor ou pior que o outro.</p>
 <pre class="r"><code>str(Vinhos)</code></pre>
 <pre><code>## 'data.frame':    6497 obs. of  13 variables:
 ##  $ fixedacidity      : num  6.6 6.7 10.6 5.4 6.7 6.8 6.6 7.2 5.1 6.2 ...
@@ -423,9 +394,8 @@ $(document).ready(function () {
 ##  $ alcohol           : num  10.5 12.6 9.8 9.4 9.1 9.5 10.4 12.8 11.4 9 ...
 ##  $ quality           : int  5 6 6 6 5 5 4 6 7 6 ...
 ##  $ Vinho             : Factor w/ 2 levels &quot;RED&quot;,&quot;WHITE&quot;: 2 2 1 2 2 1 1 1 2 2 ...</code></pre>
-</div>
-<div id="descritivo-sobre-as-variaveis" class="section level2">
-<h2>Descritivo sobre as variáveis</h2>
+<div id="descritivo-sobre-as-variaveis" class="section level3">
+<h3>Descritivo sobre as variáveis</h3>
 <table>
 <colgroup>
 <col width="29%"></col>
@@ -484,10 +454,36 @@ $(document).ready(function () {
 </tr>
 <tr class="even">
 <td>quality (Qualidade)</td>
-<td>variável de saída (com base em dados sensoriais, pontuação entre 0 e 10).</td>
+<td>variável de saída (com base em dados sensoriais).</td>
 </tr>
 </tbody>
 </table>
+</div>
+<div id="analise-dos-dados" class="section level3">
+<h3>Análise dos dados</h3>
+<p>Os vinhos receberam as notas de qualidade de 3 a 9.</p>
+<pre class="r"><code>table(as.factor(Vinhos$quality), Vinhos$Vinho)</code></pre>
+<pre><code>##    
+##      RED WHITE
+##   3   10    20
+##   4   53   163
+##   5  681  1457
+##   6  638  2198
+##   7  199   880
+##   8   18   175
+##   9    0     5</code></pre>
+<p>As notas dos vinhos brancos apresentam notas retativamente melhores do que as dos vinhos tintos.</p>
+<pre class="r"><code>prop.table(table(as.factor(Vinhos$quality), Vinhos$Vinho),2)</code></pre>
+<pre><code>##    
+##             RED       WHITE
+##   3 0.006253909 0.004083299
+##   4 0.033145716 0.033278889
+##   5 0.425891182 0.297468354
+##   6 0.398999375 0.448754594
+##   7 0.124452783 0.179665169
+##   8 0.011257036 0.035728869
+##   9 0.000000000 0.001020825</code></pre>
+</div>
 </div>
 
 
