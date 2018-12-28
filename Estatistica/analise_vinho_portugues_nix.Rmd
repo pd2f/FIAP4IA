@@ -2,7 +2,9 @@
 title: "Análise de Qualidade de Vinhos Portugueses"
 author: "Paulo/Marcos/Alex/José"
 date: "13 de dezembro de 2018"
-output: html_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -14,7 +16,14 @@ Vinhos <- read.csv2("BaseWine_Red_e_White2018.csv", row.names=1)
 
 ## Base
 
-Apresentamos uma base de dados com 6497 observações de vinhos portugueses tintos e brancos. Essas observações são compostas por 11 (onze) variáveis quantitativas continuas contendo valores apurados para suas características ou composições, 1 (uma) variável quantitativa continua que poderá ser convertida em categórica ordinal, pois indica a qualidade do vinho e será a nossa variável 'target', e 1 (uma) variável categorica nominal indicando o tipo do vinho (tinto ou branco). O nosso objetivo é através da inferência estatística descobrir se existe alguma correlação entre qualidade do vinho e os valores dos seus atributos. Essa relação causal deverá explicar o porquê um vinho foi considerado melhor ou pior que o outro.
+Essa base de dados é pública e disponíbilizada para pesquisa. Os detalhes estão disponíveis em   P. Cortez, A. Cerdeira, F. Almeida, T. Matos E J. Journey. 
+  Modelagem de preferências de vinhos por mineração de dados a partir de propriedades físico-químicas.Nos sistemas de apoio à decisão, Elsevier, 47 (4): 547-553. ISSN: 0167-9236.Disponível em: 
+  [@Elsevier] http://dx.doi.org/10.1016/j.dss.2009.05.016
+  [Pré-imprensa (PDF)] http://www3.dsi.uminho.pt/pcortez/winequality09.pdf
+  [Bib] Http://www3.dsi.uminho.pt/pcortez/dss09.bib
+
+
+A base de dados tem 6497 observações de vinhos portugueses tintos e brancos. Essas observações são compostas por 11 (onze) variáveis quantitativas continuas contendo valores apurados em testes físico-quimicos a respeito das suas características ou composições, 1 (uma) variável quantitativa continua que poderá ser convertida em categórica ordinal, pois indica a qualidade do vinho baseada em dados sensoriais apurada pela mediana de pelo menos 3 avaliações efetuadas por peritos em vinhos, e esta será a nossa variável 'target', e 1 (uma) variável categorica nominal indicando o tipo do vinho (tinto ou branco). O nosso objetivo é através da inferência estatística descobrir se existe alguma correlação entre qualidade do vinho e os valores dos seus atributos. Essa relação causal deverá explicar o porquê um vinho foi considerado melhor ou pior que o outro baseado em suas caracteristicas físico-quimicas.
 
 ```{r recbase}
 str(Vinhos)
@@ -25,7 +34,7 @@ str(Vinhos)
 
 | Atributos | Descrição  |
 |-----|------------|
-| fixedacidity (Acidez permanente) | a maioria dos ácidos presentes no vinho ou fixos ou não voláteis (não evaporaram prontamente) | 
+| fixedacidity (Acidez fixa) | a maioria dos ácidos presentes no vinho ou fixos ou não voláteis (não evaporaram prontamente) | 
 | volatileacidity (Acidez volátil) |a quantidade de ácido acético no vinho, que em níveis muito altos pode levar a um gosto desagradável de vinagre. |
 | citricacid (Ácido cítrico) | encontrado em pequenas quantidades, o ácido cítrico pode adicionar "frescura" e sabor aos vinhos. |
 | residualsugar (Açúcar residual) | a quantidade de açúcar restante ao término da fermentação, é raro encontrar vinhos com menos de 1 grama / litro. Vinhos com mais de 45 gramas / litro são considerados doces. |
@@ -36,17 +45,64 @@ str(Vinhos)
 | pH | descreve como o vinho é acídico ou básico numa escala de 0 (muito ácido) a 14 (muito básico); a maioria dos vinhos tem entre 3-4 na escala de pH. |
 | sulphates (Sulfatos) | um aditivo de vinho que pode contribuir para os níveis de gás de dióxido de enxofre (S02), que age como um antimicrobiano e antioxidante. |
 | alcohol (Álcool) | o teor alcoólico percentual do vinho. |
-| quality (Qualidade) | variável de saída (com base em dados sensoriais). |
+| quality (Qualidade) | variável de saída (com base em dados sensoriais) que poderiam ser de 0 a 10 sendo zero muito ruim e 10 muito excelente. |
+
+
+```{r labels, paged.print=TRUE}
+
+attr(Vinhos$fixedacidity, 'label') <- 'acidez fixa'
+attr(Vinhos$volatileacidity, 'label') <- 'acidez volatil'
+attr(Vinhos$citricacid, 'label') <- 'acido citrico'
+attr(Vinhos$residualsugar, 'label') <- 'acucar residual'
+attr(Vinhos$chlorides, 'label') <- 'cloretos'
+attr(Vinhos$freesulfurdioxide, 'label') <- 'dioxido de enxofre livre'
+attr(Vinhos$totalsulfurdioxide, 'label') <- 'dioxido de enxofre total'
+attr(Vinhos$density, 'label') <- 'densidade'
+attr(Vinhos$pH, 'label') <- 'pH'
+attr(Vinhos$sulphates, 'label') <- 'sulfatos'
+attr(Vinhos$alcohol, 'label') <- 'alcool'
+attr(Vinhos$quality, 'label') <- 'qualidade'
+attr(Vinhos$Vinho, 'label') <- 'tipo do vinho'
+Vinhos
+```
+No primeiro olhar para o sumário das variáveis podemos notar alguns atributos com grande dispersão que pode sugerir a presença de outliers como por exemplo o açucar residual, a acidez cítrica, o dióxido de exofre total, o dióxido de enxofre livre, o álcool. Também podemos notar que temos muito mais vinhos brancos que tintos avaliados.
+```{r sumario}
+summary(Vinhos)
+```
+
 
 ### Análise dos dados
 
-Os vinhos receberam as notas de qualidade de 3 a 9. 
+Os vinhos receberam notas de qualidade de 3 a 9. A grande maioria dos vinhos foram classificados como normais, nem ruim nem excelente, no meio termo da classificação.
 ```{r rec_avaliacao}
 table(as.factor(Vinhos$quality), Vinhos$Vinho)
 ```
 As notas dos vinhos brancos apresentam notas retativamente melhores do que as dos vinhos tintos.
 ```{r rec_relativa}
 prop.table(table(as.factor(Vinhos$quality), Vinhos$Vinho),2)
+```
+Ainda comparando os resultados dos vinhos tintos e brancos podemos notar que muitos atributos apresentam diferenças significativas na apuração das suas médias. Entretanto o resultado não foi padronizado e podemos notar que a qualidade, o álcool e o PH apresentaram resultados muito próximos, apresentando pouca diferença ou diferença insignificante sugerindo a possibilidade da existência algum padrão.   
+```{r agregacao}
+attach(Vinhos)
+aggregate(Vinhos, by = list(Vinho), FUN = mean)
+```
+
+
+```{r distribuicoes}
+par (mfrow=c(3,4))
+hist(fixedacidity)
+hist(volatileacidity)
+hist(citricacid )
+hist(residualsugar)
+hist(chlorides)
+hist(freesulfurdioxide)
+hist(totalsulfurdioxide)
+hist(density)
+hist(pH)
+hist(sulphates)
+hist(alcohol)
+hist(quality)
+par (mfrow=c(1,1))
 ```
 
 
