@@ -21,7 +21,49 @@ output:
 ******
 
 ******
-###Descrição dos atributos:
+####Reconhecimento da Base: Um descrito do tamanho da base, quantidade de variáveis, formatos, e alguns descritivos (“achados”) sobre a base/variáveis.
+******
+
+******
+####Apresentamos uma base de dados com 6497 observações de vinhos portugueses tintos e brancos. Essas observações são compostas por 11 (onze) variáveis quantitativas continuas contendo valores apurados para suas características ou composições, 1 (uma) variável quantitativa continua que poderá ser convertida em categórica ordinal, pois indica a qualidade do vinho e será a nossa variável 'target', e 1 (uma) variável categorica nominal indicando o tipo do vinho (tinto ou branco). O nosso objetivo é através da inferência estatística descobrir se existe alguma correlação entre qualidade do vinho e os valores dos seus atributos. Essa relação causal deverá explicar o porquê um vinho foi considerado melhor ou pior que o outro.
+******
+
+******
+##Algumas etapas importantes:
+******
+
+******
+###1.	Base
+******
+
+#####Reconhecimento da Base: Um descrito do tamanho da base, quantidade de variáveis, formatos, e alguns descritivos (“achados”) sobre a base/variáveis.
+#####Avaliar se a análise será feita com os dois tipos de vinhos juntos ou se separaria por tipo para analisá-los. 
+#####Análise exploratória de dados: Detecção de outliers, gráficos e análise sobre os dois tipos de vinhos. Correlações entre elas (numéricas e gráficos).
+#####No fechamento desta etapa colocar qual a opção seguirá sobre os tipos de vinhos , sobre os outliers (caso tenha) e o uso de Componentes Principais
+
+
+```{r recbase, echo=FALSE}
+# mostrar até 2 casas decimais
+options("scipen" = 2)
+
+# Ler arquivo csv
+
+setwd("C:/Users/ainacio/Desktop/FIAP - IA/3 - Conceitos de Estatisticos para IA")
+getwd()
+Vinhos <- read.csv2("BaseWine_Red_e_White2018.csv", row.names=1)
+
+
+#Base
+#View(Vinhos)
+
+
+#mostrar as variáveis
+str(Vinhos)
+
+```
+
+******
+###Descritivo sobre as variáveis:
 ******
   
 #####1 - Fixed acidity / Acidez fixa:
@@ -49,44 +91,8 @@ output:
 #####12 - Quality / Qualidade:
 #####variável de saída (com base em dados sensoriais, pontuação entre 0 e 10)
 
-******
-##Algumas etapas importantes:
-******
 
-******
-###1.	Base
-******
-
-#####Reconhecimento da Base: Um descrito do tamanho da base, quantidade de variáveis, formatos, e alguns descritivos (“achados”) sobre a base/variáveis.
-#####Avaliar se a análise será feita com os dois tipos de vinhos juntos ou se separaria por tipo para analisá-los. 
-#####Análise exploratória de dados: Detecção de outliers, gráficos e análise sobre os dois tipos de vinhos. Correlações entre elas (numéricas e gráficos).
-#####No fechamento desta etapa colocar qual a opção seguirá sobre os tipos de vinhos , sobre os outliers (caso tenha) e o uso de Componentes Principais
-
-```{r}
-# mostrar até 2 casas decimais
-options("scipen" = 2)
-
-# Ler arquivo csv
-
-setwd("C:/Users/ainacio/Desktop/FIAP - IA/3 - Conceitos de Estatisticos para IA")
-getwd()
-Vinhos <- read.csv2("BaseWine_Red_e_White2018.csv", row.names=1)
-
-
-#Base
-#View(Vinhos)
-
-
-#mostrar as variáveis
-str(Vinhos)
-
-#Estatisticas descritivas - Medidas resumo
-summary(Vinhos)
-
-
-# trabalhar com as variáveis 
-attach(Vinhos)
-
+```{r labels, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
 
 #Criando label para cada coluna do dataset
 
@@ -103,24 +109,62 @@ attr(Vinhos$sulphates, 'label') <- 'sulfatos'
 attr(Vinhos$alcohol, 'label') <- 'alcool'
 attr(Vinhos$quality, 'label') <- 'qualidade'
 attr(Vinhos$Vinho, 'label') <- 'vinho'
+Vinhos
 
+```
+
+
+******
+#####No sumário das variáveis podemos notar alguns atributos com grande dispersão sugerindo a presença de outliers, como por exemplo: o açucar residual, a acidez cítrica, o dióxido de exofre total, o dióxido de enxofre livre, o álcool. Podemos notar que na nossa base de dados temos avaliados muito mais vinhos brancos do que tintos.
+******
+
+```{r sumario, echo=FALSE, message=FALSE, warning=FALSE}
+#Estatisticas descritivas - Medidas resumo
+summary(Vinhos)
+```
+
+
+******
+### Análise dos dados
+
+#####Numa escala de 0 a 10 a menor nota de qualidade obtida foi 3 e a maior nota foi 9.
+
+#####No atributo qualidade vimos uma distribuição com muito poucos registros considerados excelentes e ruins. A maioria dos vinhos foi classificada como normal (nem ruim, nem excelente), digamos, no meio termo da classificação.
+******
+
+```{r rec_avaliacao, echo=FALSE, message=FALSE, warning=FALSE}
+# trabalhar com as variáveis 
+attach(Vinhos)
 
 sapply(Vinhos, function(x)all(is.na(x)))
 
 # Frequência absoluta 
+#Os vinhos receberam as notas de qualidade de 3 a 9. 
 table(as.factor(Vinhos$quality), Vinhos$Vinho)
+```
 
 
-# Frequência relativa 
+```{r distqualidade, echo=FALSE, message=FALSE, warning=FALSE}
+hist(quality, col=c("pink"), col.main="darkgray", prob=T)
+```
+
+#####Os vinhos brancos apresentam notas retativamente melhores do que as notas dos vinhos tintos.
+
+```{r rec_relativa, echo=FALSE, message=FALSE, warning=FALSE}
+# Frequência relativa
+#As notas dos vinhos brancos apresentam notas retativamente melhores do que as dos vinhos tintos.
 prop.table(table(as.factor(Vinhos$quality), Vinhos$Vinho),2)
+```
 
+#####Apurando as médias dos atributos dos vinhos, por tipo de vinho, podemos notar que a qualidade, o álcool, a densidade e o PH apresentaram resultados muito próximos, apresentando pouca ou diferença insignificante, sugerindo a possibilidade de existência alguma correlação; entretanto os demais atributos apresentam consideráveis diferenças para suas médias.
 
-attach(Vinhos)
-aggregate(Vinhos,
-          by = list(Vinho),
-          FUN = mean)
+```{r agregacao, echo=FALSE, message=FALSE, warning=FALSE}
+aggregate(Vinhos, by = list(Vinho), FUN = mean)
+```
 
+#####Identificamos outliers em todas as variáveis da base.
 
+```{r distribuicoes, echo=FALSE, message=FALSE, warning=FALSE}
 #comando para gerar em 3 linhas e 4 colunas os histogramas
 par (mfrow=c(3,4))
 hist(fixedacidity)
@@ -136,21 +180,10 @@ hist(sulphates)
 hist(alcohol)
 hist(quality)
 par (mfrow=c(1,1))
+```
 
 
-hist(quality, col=c("pink"), col.main="darkgray", prob=T)
-
-
-#install.packages("plotly")
-library(plotly)
-
-
-plot_ly(x = Vinhos$volatileacidity, type = 'histogram')
-
-
-
-attach(Vinhos)
-
+```{r outliers, echo=FALSE, message=FALSE, warning=FALSE}
 #comando para gerar em 3 linhas e 4 colunas os histogramas
 par (mfrow=c(3,4))
 boxplot(fixedacidity, main='fixedacidity')
@@ -167,10 +200,33 @@ boxplot(alcohol, main='alcohol')
 boxplot(Vinhos$quality, main='quality')
 par (mfrow=c(1,1))
 
+```
+
+```{r sufurdiox_outliers, echo=FALSE, message=FALSE, warning=FALSE}
+# Gráfico de dispersão ( pch=caracter, lwd=largura)
+
+plot(freesulfurdioxide~totalsulfurdioxide)
+plot(freesulfurdioxide~totalsulfurdioxide, pch=1, lwd=3)
+
+plot(freesulfurdioxide~totalsulfurdioxide)
+abline(v=mean(freesulfurdioxide), col="red")
+abline(h=mean(totalsulfurdioxide), col="green")
+```
 
 
+#####Para a acidez volátil podemos identificar duas parábolas e outliers. Uma distribuição anormal não condizente por exemplo com a distribuição da qualidade.
+
+```{r volatileacidity, echo=FALSE, message=FALSE, warning=FALSE}
+#install.packages("plotly")
+library(plotly)
+plot_ly(x = Vinhos$volatileacidity, type = 'histogram')
+```
+
+#####Na comparação entre os vinhos tintos e brancos podemos verificar uma certa disparidade na maioria dos atributos exceto para a qualidade e o álcool.
+
+```{r comp_tinto_branco, echo=FALSE, message=FALSE, warning=FALSE}
+par (mfrow=c(3,4))
 boxplot(quality ~ Vinho, main='quality')
-
 boxplot(fixedacidity ~ Vinho, main='fixedacidity',col=c('red','blue'))
 boxplot(volatileacidity ~ Vinho , main='volatileacidity',col=c('red','blue'))
 boxplot(citricacid ~ Vinho, main='citricacid',col=c('red','blue'))
@@ -182,9 +238,13 @@ boxplot(density ~ Vinho, main='density',col=c('red','blue'))
 boxplot(pH ~ Vinho, main='pH',col=c('red','blue'))
 boxplot(sulphates ~ Vinho, main='sulphates',col=c('red','blue'))
 boxplot(alcohol ~ Vinho, main='alcohol',col=c('red','blue'))
-
 par (mfrow=c(1,1))
+```
 
+#####Voltando a tomar como exemplo a acidez volátil e comparando os resultado agora segregados entre tinto  e branco podemos verificar que as distribuição segregadas parecem mais normais.
+
+
+```{r acidez_branco_tinto, echo=FALSE, message=FALSE, warning=FALSE}
 
 white <- subset(Vinhos, Vinho=="WHITE", select=c(quality,fixedacidity,volatileacidity,citricacid,residualsugar,
                                                  chlorides,freesulfurdioxide,totalsulfurdioxide,density,pH,
@@ -202,40 +262,29 @@ comparing_hist <- plot_ly(alpha = 0.6) %>%
   layout(barmode = 'overlay')
 comparing_hist
 
+```
 
-
-# Gráfico de dispersão ( pch=caracter, lwd=largura)
-
-plot(freesulfurdioxide~totalsulfurdioxide)
-plot(freesulfurdioxide~totalsulfurdioxide, pch=1, lwd=3)
-
-plot(freesulfurdioxide~totalsulfurdioxide)
-abline(v=mean(freesulfurdioxide), col="red")
-abline(h=mean(totalsulfurdioxide), col="green")
+#####Segregamos a análise por tipo de vinho. Para o vinho branco temos mais observações do que para o vinho tinto. A distribuição das notas de qualidade para o vinho branco tem distribuição semelhante a da amostra consolidada da base. A partir de agora a análise será realizada somente com os dados dos vinhos brancos.
 
 
 
-# Com base na análise exploratória inicial o que fazer?
-
-# análise específica - para vinho="WHITE" 
-
-
-white <- subset(Vinhos, Vinho=="WHITE", select=c(quality,fixedacidity,volatileacidity,citricacid,residualsugar,
-                                                 chlorides,freesulfurdioxide,totalsulfurdioxide,density,pH,
-                                                 sulphates,alcohol))
-
-                                                 
+```{r correlacao, echo=FALSE, message=FALSE, warning=FALSE}
 hist(white$quality)       
  
 #Estatísticas descritivas
 summary(white)
- 
-attach(white)
- 
+
+```
+
+
+```{r matriz_corr, echo=FALSE, message=FALSE, warning=FALSE}
 # matriz de correlações
 matcor <- cor(white)
 print(matcor, digits = 2)
+```
 
+
+```{r correlacao_branco, echo=FALSE, message=FALSE, warning=FALSE}
 #install.packages("corrgram")
 library(corrgram)
 
@@ -256,10 +305,50 @@ panel.cor <- function(x, y, digits=2, prefix ="", cex.cor,
 }
 #pdf(file = "grafico.pdf")
 pairs(white, lower.panel=panel.smooth, upper.panel=panel.cor)
+```
 
-     
-# fim
 
+#####Para melhorar a performance preditiva promoveremos a redução de dimensionalidade. Analisando os componentes principais será descartada a variável "residualsugar" devido a sua alta correlação com a variável "density" e a sua menor variância, assim como, será descartada a variável "freesulfurdioxide" devido a sua alta correlação com a variável "totalsulfurdioxide" e sua menor variância descartando-se os outliers.
+
+```{r}
+#####Paulo Franco - anexo2
+summary(Vinhos)
+
+Vinhos$quality
+
+sort(unique(Vinhos$quality))
+
+factor(Vinhos$quality, ordered=TRUE, 
+        labels=c("Ruim","Ruim","Regular","Regular","Bom", "Bom", "Ótimo"))
+
+#install.packages("magrittr")
+library(magrittr)
+#install.packages("dplyr")
+library(dplyr)
+tintos <- Vinhos %>% filter(Vinho == "RED")
+brancos <- Vinhos %>% filter(Vinho == "WHITE")
+
+moda <- function(vetor) {
+  valores = sort(unique(vetor))
+  retorno = NULL
+  for (valor in valores) {
+    retorno <- c(retorno, length(vetor[vetor == valor]))
+  }
+  ret <-  as.matrix(retorno)
+  rownames(ret) <- valores
+  colnames(ret) <- c("frequência")
+  ret
+}
+
+plot(moda(brancos$quality),main = 'Vinhos Brancos', type = 'l')
+
+plot(moda(tintos$quality),main = 'Vinhos Tintos', type = 'l')
+#####Paulo Franco - anexo2
+
+```
+
+
+```{r}
 ####Alex
 
 
@@ -372,7 +461,6 @@ abline(h = 0, lty = 2)
 ####Alex
 
 ```
-
 
 
 ******
