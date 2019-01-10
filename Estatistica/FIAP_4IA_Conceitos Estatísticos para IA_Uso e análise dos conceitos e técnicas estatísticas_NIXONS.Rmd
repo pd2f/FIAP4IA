@@ -401,24 +401,79 @@ attach(Vinhos)
 ##Modelo1: Regressão Linear
 ******
 
+
+******
+###### Para aplicação das técnicas utilizaremos apenas a base de vinhos brancos (4898 observações), a base de vinhos tintos NÃO será considerada (1599 observações)
+******
+
+
+******
+###### Boa prática: Se por acaso existe um grande número de variáveis, é recomendado usar métodos de seleção automática para eliminar aquelas com efeitos insignificantes E o conjunto reduzido de variáveis pode então ser investigado pelo método de todos os modelos possíveis.
+******
+
+
+
+******
+####-> 	explicar a técnica
+##### R: Técnica estatística que relaciona funcionalmente, uma variável dependente (Qualidade do vinho) às suas possíveis variáveis explicativas (Densidade e Dioxido de enxofre total).
+##### Qualidade do Vinho em função da densidade e da quantidade de dioxido de enxofre total.
+******
+
+
+******
+####-> 	qual a variável dependente, 
+##### R: A variável dependente, ou seja, a variável resposta é "Qualidade"
+******
+
+
+******
+####-> 	quais são as variáveis independentes,
+##### R: As variáveis independentes, ou seja, os valores fixos conhecidos são: Densidade e Dioxido de enxofre total.
+******
+
+******
+####-> 	relações entre elas (numéricas e gráficos) (verificar se todas já foram efetuadas adequadamente na parte 1).
+##### R: A relação entre as variáveis foi efetuada na etapa 1 do estudo.
+******
+
+******
+####-> 	saída do modelo (análise)
+####-> 	qualidade do modelo
+####-> 	O que cada modelo gerou de resultados?
+##### R: mse = 0.8409667, erro_usando_media = 0.8855482
+##### R: gráfico resíduo = Preditor linear x Residuos
+##### R:Teste de Normalidade de Shapiro Wilk
+******
+
 ```{r}
 ####Alex
 # Modelo de regressão linear simples
 
 
-modelo1 <- lm(quality ~ fixedacidity+volatileacidity+citricacid+residualsugar+chlorides+freesulfurdioxide+totalsulfurdioxide+density+pH+sulphates+alcohol+Vinho)
-summary(modelo1)
+#Para aplicação das técnicas utilizaremos apenas a base de vinhos brancos (4898 observações), a base de vinhos tintos NÃO será considerada (1599 observações)
+
+Vinho_branco <- subset(Vinhos, Vinho=="WHITE", select=c(quality,fixedacidity,volatileacidity,citricacid,residualsugar,chlorides,freesulfurdioxide,totalsulfurdioxide,density,pH, sulphates,alcohol))
 
 
-stepwise<-step(modelo1,direction="both")
- 
-stepwise
-summary(stepwise)
+# modelo1 <- lm(quality ~ fixedacidity+volatileacidity+citricacid+residualsugar+chlorides+freesulfurdioxide+totalsulfurdioxide+density+pH+sulphates+alcohol+Vinho)
+# summary(modelo1)
+# 
+# 
+# stepwise<-step(modelo1,direction="both")
+#  
+# stepwise
+# summary(stepwise)
 
 
 # Modelo final.
-modelo_fim <- lm(quality ~ fixedacidity+volatileacidity+citricacid+residualsugar+chlorides+freesulfurdioxide+totalsulfurdioxide+density+pH+sulphates+alcohol+Vinho)
+modelo_fim <- lm(Vinho_branco$quality ~ Vinho_branco$density+Vinho_branco$totalsulfurdioxide)
 summary(modelo_fim)
+#View(modelo_fim)
+
+stepwise<-step(modelo_fim,direction="both")
+ 
+stepwise
+summary(stepwise)
 
 
 Val_pred <- predict(modelo_fim,interval = "prediction", level = 0.95) 
@@ -429,10 +484,10 @@ lower <- Val_pred[,2] # limite inferior
 upper <- Val_pred[,3] # limite superior
 
 
-mse <- mean((Vinhos$quality - fit)^2)
+mse <- mean((Vinho_branco$quality - fit)^2)
 sqrt(mse)
 
-erro_usando_media <- mean((Vinhos$quality - mean(Vinhos$quality))^2)
+erro_usando_media <- mean((Vinho_branco$quality - mean(Vinho_branco$quality))^2)
 sqrt(erro_usando_media)
 
 
@@ -451,16 +506,17 @@ qqline(residuals(modelo_fim))
 
 # sE Valor P do teste é pequeno, rejeita-se a hipótese de normalidade dos resíduos e,
 # por consequência, conclui-se que os erros não são normalmente distribuídos.
-
-#shapiro.test(residuals(modelo_fim))
+shapiro.test(residuals(modelo_fim))
 
 ## perform Durbin-Watson test
-#dwtest(residuals(modelo_fim))
+#install.packages("lmtest")
+# library(lmtest)
+# dwtest(residuals(modelo_fim))
 
-attach(Vinhos)
-Vinhos_Final<-cbind(Vinhos,Val_pred)
+attach(Vinho_branco)
+Vinhos_Final<-cbind(Vinho_branco,Val_pred)
 
-#fix(Vinhos_Final)
+fix(Vinhos_Final)
 
 ####Alex
 
