@@ -13,7 +13,9 @@ options("scipen" = 2)
 Vinhos <- read.csv2("BaseWine_Red_e_White2018.csv", row.names=1)
 
 library(corrgram)
-
+library(rpart)
+library(rpart.plot)
+library(knitr)
 
 ```
 
@@ -40,7 +42,7 @@ str(Vinhos)
 
 
 | Atributos | Descrição  |
-|-----|------------|
+|-----|---------------------------------------------------------------------------|
 | fixedacidity (Acidez fixa) | a maioria dos ácidos presentes no vinho ou fixos ou não voláteis (não evaporaram prontamente) | 
 | volatileacidity (Acidez volátil) |a quantidade de ácido acético no vinho, que em níveis muito altos pode levar a um gosto desagradável de vinagre. |
 | citricacid (Ácido cítrico) | encontrado em pequenas quantidades, o ácido cítrico pode adicionar "frescura" e sabor aos vinhos. |
@@ -73,7 +75,7 @@ attr(Vinhos$Vinho, 'label') <- 'tipo do vinho'
 Vinhos
 ```
 
-No sumário das variáveis podemos notar alguns atributos com grande dispersão sugerindo a presença de outliers, como por exemplo: o açucar residual, a acidez cítrica, o dióxido de exofre total, o dióxido de enxofre livre, o álcool. Podemos notar que na nossa base de dados temos avaliados muito mais vinhos brancos do que tintos.
+No sumário das variáveis podemos notar alguns atributos com grande aplitude sugerindo a presença de outliers, como por exemplo: o açucar residual, a acidez cítrica, o dióxido de exofre total, o dióxido de enxofre livre, o álcool. Podemos notar que na nossa base de dados temos avaliados muito mais vinhos brancos do que tintos.
 
 ```{r sumario, echo=FALSE, message=FALSE, warning=FALSE}
 summary(Vinhos)
@@ -235,4 +237,269 @@ pairs(white, lower.panel=panel.smooth, upper.panel=panel.cor)
 
 ```
 
-Para melhorar a performance preditiva promoveremos a redução de dimensionalidade. Analisando os componentes principais será descartada a variável "residualsugar" devido a sua alta correlação com a variável "density" e a sua menor variância, assim como, será descartada a variável "freesulfurdioxide" devido a sua alta correlação com a variável "totalsulfurdioxide" e sua menor variância descartando-se os outliers.
+Para melhorar a performance preditiva promoveremos a redução de dimensionalidade. Analisando os componentes principais será descartada a variável "residualsugar" devido a sua alta correlação com a variável "density" e a sua menor variância, assim como, será descartada a variável "freesulfurdioxide" devido a sua alta correlação com a variável "totalsulfurdioxide" e sua menor variância ao descartar os outliers.
+
+Como o interesse da análise é descobrir sobre as características dos vinhos bons e ruins, vamos filtar para construção do modelo somente as observações dos vinhos que tiveram notas menores que 5 e maiores que 7; de acordo com essas notas passemos a considerar dois grupos, ruins e bons respectivamente.
+
+Após essas limpezas, processamentos e transformações dos dados da base podemos verificar que a distribuição da população é assimétrica positiva sendo a concentração da frequência mais alta à esquerda da média. A maioria das váriáveis possuem curvas mais achatadas, pois possuem frequências mais concentradas, homogêneas (leptocúrticas), exceto para 3 variáveis que apresentam maiores dispersões, heterogêneas (platicúrticas).
+
+```{r rm_outliers, echo=FALSE, message=FALSE, warning=FALSE}
+filter(white,
+         quality > 7
+       | quality < 5
+) %>% select(quality,fixedacidity,volatileacidity,citricacid,chlorides,totalsulfurdioxide:alcohol) ->
+  white_rmoutliers
+
+attach(white_rmoutliers)
+
+par (mfrow=c(3,4))
+
+
+
+hist(white_rmoutliers$density, freq = FALSE,main='density', ylab = "Densidade", xlab="Positiva e Platicúrtica")
+curve(dnorm(x, mean=mean(white_rmoutliers$density), sd=sd(white_rmoutliers$density)), add=TRUE,  lwd=2)
+
+
+
+hist(white_rmoutliers$volatileacidity, freq = FALSE, ylim = c(0,7),main='volatileacidity', ylab = "Densidade", xlab="Positiva e Platicúrtica")
+curve(dnorm(x, mean=mean(white_rmoutliers$volatileacidity), sd=sd(white_rmoutliers$volatileacidity)), add=TRUE,  lwd=2)
+
+
+hist(white_rmoutliers$fixedacidity, freq = FALSE,main='fixedacidity', ylab = "Densidade", xlab="Positiva e Leptocúrtica")
+curve(dnorm(x, mean=mean(white_rmoutliers$fixedacidity), sd=sd(white_rmoutliers$fixedacidity)), add=TRUE,  lwd=2)
+
+
+
+hist(white_rmoutliers$citricacid, freq = FALSE,main='citricacid', ylab = "Densidade", xlab="Positiva e Leptocúrtica")
+curve(dnorm(x, mean=mean(white_rmoutliers$citricacid), sd=sd(white_rmoutliers$citricacid)), add=TRUE,  lwd=2)
+
+
+
+hist(white_rmoutliers$chlorides, freq = FALSE,main='chlorides', ylab = "Densidade", xlab="Positiva e Platicúrtica")
+curve(dnorm(x, mean=mean(white_rmoutliers$chlorides), sd=sd(white_rmoutliers$chlorides)), add=TRUE,  lwd=2)
+
+
+
+hist(white_rmoutliers$sulphates, freq = FALSE,main='sulphates', ylab = "Densidade", xlab="Positiva e Leptocúrtica")
+curve(dnorm(x, mean=mean(white_rmoutliers$sulphates), sd=sd(white_rmoutliers$sulphates)), add=TRUE,  lwd=2)
+
+
+
+
+hist(white_rmoutliers$totalsulfurdioxide, freq = FALSE,main='totalsulfurdioxide', xlab="Positiva e Leptocúrtica")
+curve(dnorm(x, mean=mean(white_rmoutliers$totalsulfurdioxide), sd=sd(white_rmoutliers$totalsulfurdioxide)), add=TRUE,  lwd=2)
+
+
+
+
+hist(white_rmoutliers$pH, freq = FALSE,main='pH', ylab = "Densidade", xlab="Positiva e Leptocúrtica")
+curve(dnorm(x, mean=mean(white_rmoutliers$pH), sd=sd(white_rmoutliers$pH)), add=TRUE,  lwd=2)
+
+
+
+hist(white_rmoutliers$alcohol, freq = FALSE,main='alcohol', ylab = "Densidade", xlab="Positiva e Leptocúrtica")
+curve(dnorm(x, mean=mean(white_rmoutliers$alcohol), sd=sd(white_rmoutliers$alcohol)), add=TRUE,  lwd=2)
+
+
+par (mfrow=c(1,1))
+```
+
+## Modelo de Regressão Linear
+
+A regressão linear relaciona uma variável dependente, que no nosso caso será a variável quality, com as variáveis que a explicam, chamadas variáveis independentes, que no nosso caso vamos considerar: alcohol, density, volatileacidity e fixedacidity.
+
+É utilizado o método dos mínimos quadrados onde se minimiza a soma de quadrados dos desvios dos pontos sobre uma reta ajustada. A reta é traçada obtém a menor distâncias diferença entre os pontos. 
+
+Aplicando a regressão linear considerando as variáveis supra  podemos constatar correlação moderada, chegando 41,43% para o R2 ajustado.
+
+```{r regressao_linear_}
+modelo_rl <- lm(quality ~ 
+                  alcohol
+                +density
+                +volatileacidity
+                +fixedacidity,data = white_rmoutliers)
+summary(modelo_rl)
+```
+```{r regressao_linear_plot}
+
+qplot(y=quality,x=
+        alcohol
+      +density
+      +volatileacidity
+      +fixedacidity, data = white_rmoutliers, main = "Regressão Liner sobre a Qualidade do Vinho por suas características físico-químicas") +
+  stat_smooth(method="lm", col="red", se=FALSE) 
+
+```
+
+Podemos dizer que os resíduos do modelo não são simétricos, mas possuem uma distribuição normal. No gráfico abaixo podemos verificar que os residuos se distribuem aleatoriamente em torno de zero ao longo da reta, portanto podemos afirmar que o modelo de regressão está adequado.
+
+
+
+```{r regressao_linear_qualidade}
+
+plot(modelo_rl$residuals)
+abline(h = 0, col="red", lwd = 3)
+
+
+#shapiro.test(residuals(modelo_rl))
+hist(residuals(modelo_rl))
+
+```
+
+Analisamos os residuos e identificamos possíveis outliers. Vamos eliminar as observações cujos resíduos estiverem acima de 2 e abaixo de -2.
+
+O segundo modelo de regressão linear produzido conta com o R2 ajustado de 75,48%; um modelo indicando uma boa correlação.
+```{r}
+
+white_sresiduos <- white_rmoutliers[(residuals(modelo_rl) < 2)&(residuals(modelo_rl) > -2),]
+attach(white_sresiduos)
+
+modelo_fnl <- lm(quality ~ 
+                  alcohol
+                +density
+                +volatileacidity
+                +fixedacidity, data = white_sresiduos)
+summary(modelo_fnl)
+
+#Plot da regressão linear
+qplot(y=quality,x=
+        alcohol
+      +density
+      +volatileacidity
+      +fixedacidity, main = "Regressão Liner sobre a Qualidade do Vinho por suas características físico-químicas") +
+  stat_smooth(method="lm", col="red", se=FALSE) 
+
+
+#Plot dos residuais
+plot(modelo_fnl$residuals)
+abline(h = 0, col="red", lwd = 3)
+
+```
+
+Avaliando a raiz do erro médio quadrático (RMSE) pudemos verificar que o primeiro modelo apresentou um resultado melhor para o modelo preditivo.
+
+```{r preditivo_ln}
+
+val_modelo_ln <- predict(modelo_rl,interval = "prediction", level = 0.95)
+fit <- val_modelo_ln[,1] # valores preditos
+lower <- val_modelo_ln[,2] # limite inferior
+upper <- val_modelo_ln[,3] # limite superior
+
+# Validação através da raiz do erro médio quadrático
+mse_lin <- mean((quality - fit)^2)
+Rmse_lin <- sqrt(mse_lin)
+
+
+## Teste do modelo final com amostra da base de vinhos Brancos.
+set.seed(20)
+rd <- sample(1:length(white$quality),1000, replace = FALSE)
+val_teste_rl <- predict(modelo_rl,white[rd,c("quality", 
+                                           "alcohol","density",
+                                           "volatileacidity","fixedacidity")],
+                     interval = "prediction", level = 0.95)
+Vpredito <- val_teste_rl[,1] # valores preditos
+RAmse_lin <-sqrt(mean((white$quality[rd] - Vpredito)^2))
+val_teste_rl <- predict(modelo_fnl,white[rd,c("quality", 
+                                           "alcohol","density",
+                                           "volatileacidity","fixedacidity")],
+                     interval = "prediction", level = 0.95)
+Vpredito <- val_teste_rl[,1] # valores preditos
+RAmse_lin2 <-sqrt(mean((white$quality[rd] - Vpredito)^2))
+paste0("RMSE de predição do Primeiro Modelo de amostra obtida da base de vinhos brancos:",RAmse_lin)
+paste0("RMSE de predição do Segundo Modelo de amostra obtida da base de vinhos brancos:",RAmse_lin2)
+```
+
+
+
+## Modelo de Árvore de Regressão
+
+A árvore de regressao é formada por nós de decisão onde cada nó representa uma regra, para a base de qualidade de vinhos, com a variável dependente "quality" o algoritmo estabeleceu como variável independente e mais significativa o alcohol seguido por density, volatileacidity, chlorides, totalsulfurdioxide, fixedacidity, pH, sulphates e citricacid. A predição acontece percorrendo o caminho, até chegar a folha, que é o valor predito na regressão.
+
+```{r message=FALSE, warning=FALSE}
+attach(white_rmoutliers)
+modelo_Valor_tree <- rpart (quality ~
+                              alcohol
+                            +chlorides
+                            +citricacid
+                            +density
+                            +fixedacidity
+                            +pH
+                            +sulphates
+                            +totalsulfurdioxide
+                            +volatileacidity
+ ,  
+ cp = 0.001,minsplit = 5,maxdepth=10)
+
+
+
+#plot
+rpart.plot(modelo_Valor_tree, type=4, extra=1, under=FALSE, clip.right.labs=TRUE,
+           fallen.leaves=FALSE,   digits=1, varlen=-10, faclen=20,
+           cex=0.4, tweak=1.2,
+           compress=TRUE,
+           snip=FALSE)
+
+```
+
+Vamos realizar uma poda avaliando o melhor ponto entre a relação da validação cruzada e complexidade da árvore para gerar uma árvore diminuta e que possa simplificar o modelo e generalizá-lo para melhorar a capacidade preditiva com a diminuição de erros. Uma árvore com 14 sub-árvores parece o ponto de otimização do modelo.
+
+```{r arvore_qualidade}
+
+# Plot para avaliar poda
+plotcp(modelo_Valor_tree)
+
+#Podando
+modelo_Valor_tree <- prune(modelo_Valor_tree,mean(modelo_Valor_tree$cptable[9:10]))
+
+modelo_Valor_tree$cptable
+
+#plot
+rpart.plot(modelo_Valor_tree, type=4, extra=1, under=FALSE, clip.right.labs=TRUE,
+           fallen.leaves=FALSE,   digits=2, varlen=-10, faclen=20,
+           cex=0.4, tweak=1.2,
+           compress=TRUE,
+           snip=FALSE)
+
+```
+
+Avaliando a raiz do erro médio quadrático (RMSE) pudemos verificar que modelo apresentou um resultado melhor para explicar os dados que geraram o modelo, apresenta baixo poder preditivo.
+```{r preditivo_tree}
+val_amostra_tree <- predict(modelo_Valor_tree,interval = "prediction", level = 0.95) 
+mse_tree <- mean((quality - val_amostra_tree)^2)
+Rmse_tree <- sqrt(mse_tree)
+
+
+set.seed(20)
+rd <- sample(1:length(white$quality),1000, replace = FALSE)
+val_teste_tree <- predict(modelo_Valor_tree,white[rd,1:12],interval = "prediction", level = 0.95)
+Amse_tree <- mean((white$quality[rd] - val_teste_tree)^2)
+RAmse_tree <- sqrt(Amse_tree)
+
+paste0("RMSE de predição dos dados que geraram o modelo :",Rmse_tree)
+paste0("RMSE de predição de amostra obtida da base de vinhos brancos:",RAmse_tree)
+```
+
+## Comparação entre o modelo de Regressão Linear e Árvore de Regressão
+
+O modelo de regressão linear apresentou melhor capacidade preditiva enquanto a árvore de regressão consegue melhor desempenho para explicar a váriável que gerou o modelo do que capacidade de preditiva.
+
+```{r comparacao_ln_tree}
+
+tab1 <-  matrix(c(Rmse_tree,RAmse_tree,Rmse_lin,RAmse_lin),ncol=2, nrow=2)
+colnames(tab1) <- c("Árvore de Regressao", "Regressão Linear")
+row.names(tab1) <-c("Predição dos Dados que Geraram o Modelo","Predição de Amostra Aleatória Obtida da Base de Vinhos Brancos")
+kable(tab1, caption = "Comparação do RMSE de Saída dos Modelos")
+
+```
+
+O modelo mais indicado para predição de resultados de qualidade é a regressão linear.
+
+## Modelo de Árvore de Decisão
+
+
+
+
+## Modelo de Regressão Logística
+
+
+

@@ -184,7 +184,10 @@ filter(white,
        & pH < 3.5
        & pH > 2.8
        & density < 1
-                      ) %>% select(quality,fixedacidity,volatileacidity,citricacid,chlorides,totalsulfurdioxide:alcohol) -> write_liers
+                      ) %>% select(quality,fixedacidity,volatileacidity,citricacid,chlorides,totalsulfurdioxide:alcohol) -> 
+  white_rmoutliers
+
+
 hist(write_liers$quality)
 boxplot(write_liers$fixedacidity)
 summary(write_liers)
@@ -262,6 +265,91 @@ pairs(write_liers, lower.panel=panel.smooth, upper.panel=panel.cor)
 # h� outlies? Alguma sele�ao? Explique?
 
 
-# Tem necessidade de fazer componentes principais? Explique?
 
 
+#Analise de simetria
+
+
+#1
+hist(white_rmoutliers$density, freq = FALSE)
+curve(dnorm(x, mean=mean(white_rmoutliers$density), sd=sd(white_rmoutliers$density)), add=TRUE,  lwd=2)
+curtose(white_rmoutliers$density)
+
+#2
+hist(white_rmoutliers$volatileacidity, freq = FALSE, ylim = c(0,7))
+curve(dnorm(x, mean=mean(white_rmoutliers$volatileacidity), sd=sd(white_rmoutliers$volatileacidity)), add=TRUE,  lwd=2)
+curtose(white_rmoutliers$volatileacidity)
+
+#3
+hist(white_rmoutliers$quality, freq = FALSE)
+curve(dnorm(x, mean=mean(white_rmoutliers$quality), sd=sd(white_rmoutliers$quality)), add=TRUE,  lwd=2)
+curtose(white_rmoutliers$quality)
+
+#4
+hist(white_rmoutliers$fixedacidity, freq = FALSE)
+curve(dnorm(x, mean=mean(white_rmoutliers$fixedacidity), sd=sd(white_rmoutliers$fixedacidity)), add=TRUE,  lwd=2)
+curtose(white_rmoutliers$fixedacidity)
+
+#5
+hist(white_rmoutliers$citricacid, freq = FALSE)
+curve(dnorm(x, mean=mean(white_rmoutliers$citricacid), sd=sd(white_rmoutliers$citricacid)), add=TRUE,  lwd=2)
+curtose(white_rmoutliers$citricacid)
+
+#6
+hist(white_rmoutliers$chlorides, freq = FALSE)
+curve(dnorm(x, mean=mean(white_rmoutliers$chlorides), sd=sd(white_rmoutliers$chlorides)), add=TRUE,  lwd=2)
+curtose(white_rmoutliers$chlorides)
+
+#7
+hist(white_rmoutliers$sulphates, freq = FALSE)
+curve(dnorm(x, mean=mean(white_rmoutliers$sulphates), sd=sd(white_rmoutliers$sulphates)), add=TRUE,  lwd=2)
+curtose(white_rmoutliers$sulphates)
+
+
+#8
+hist(white_rmoutliers$totalsulfurdioxide, freq = FALSE)
+curve(dnorm(x, mean=mean(white_rmoutliers$totalsulfurdioxide), sd=sd(white_rmoutliers$totalsulfurdioxide)), add=TRUE,  lwd=2)
+curtose(white_rmoutliers$totalsulfurdioxide)
+
+
+#9
+hist(white_rmoutliers$pH, freq = FALSE)
+curve(dnorm(x, mean=mean(white_rmoutliers$pH), sd=sd(white_rmoutliers$pH)), add=TRUE,  lwd=2)
+curtose(white_rmoutliers$alcohol)
+
+#10
+hist(white_rmoutliers$alcohol, freq = FALSE)
+curve(dnorm(x, mean=mean(white_rmoutliers$alcohol), sd=sd(white_rmoutliers$alcohol)), add=TRUE,  lwd=2)
+curtose(white_rmoutliers$pH)
+
+
+#calcular de assimetria e curtose
+
+dec <- quantile(white_rmoutliers$totalsulfurdioxide,prob = seq(0.1, 1, length = 10), type = 5)
+s <- summary(white_rmoutliers$totalsulfurdioxide)
+kurtosis(white_rmoutliers$totalsulfurdioxide,type = 2)
+curtose <- (s['3rd Qu.'] - s['1st Qu.']) / 2*(dec['90%'] - dec['0%'])
+assimetria <- (s['Mean'] - s['Median']) / sd(white_rmoutliers$volatileacidity)
+
+curtose <- function(amostra){
+  dec = quantile(amostra,prob = seq(0.1, 1, length = 10), type = 3)
+  sumario <- summary(amostra)
+  c((s['3rd Qu.'] - s['1st Qu.']) / (2*(dec['90%'] - dec['10%'])))
+  }
+curtose(white_rmoutliers$totalsulfurdioxide)
+hist(white_rmoutliers$volatileacidity)
+rm(curtose2)
+
+
+quantile(seq(3,100),prob = seq(0.1, 1, length = 10), type = 3)
+
+quantile(white_rmoutliers$volatileacidity)
+
+hist(white_rmoutliers$pH, freq = FALSE)
+curve(dnorm(x, mean=mean(white_rmoutliers$pH), sd=sd(white_rmoutliers$pH)), add=TRUE,  lwd=2)
+kurtosis(white_rmoutliers$pH)
+
+
+hist(white_rmoutliers$density, freq = FALSE)
+curve(dnorm(x, mean=mean(white_rmoutliers$density), sd=sd(white_rmoutliers$density)), add=TRUE,  lwd=2)
+kurtosis(white_rmoutliers$density)
