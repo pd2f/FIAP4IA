@@ -1,11 +1,19 @@
 ---
-title: "Análise de Qualidade de Vinhos Portugueses"
-author: "Paulo Franco / Marcos / Alex / José"
-date: "31 de dezembro de 2018"
+title: "Conceitos Estatísticos para IA"
+author: 'Aluno: Alex Inácio | RM: 332999 , Aluno: José Rueda | RM: 332193, Aluno: Marcos Cordeiro | RM: 332382, Aluno: Paulo Franco | RM: 332686'
+subtitle: Uso e análise dos conceitos e técnicas estatísticas
 output:
-  html_document:
-    df_print: paged
+ html_document:
+   df_print: paged
 ---
+![direitos reservados](FIAP.png){ width=20% }
+---
+
+******
+###Avaliação Total da Disciplina : Utilização de técnicas estatísticas:
+####Utilizando as técnicas desenvolvidas em aula.
+####Técnicas de análise de dados e técnicas supervisionadas.
+******
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
@@ -56,7 +64,6 @@ str(Vinhos)
 | alcohol (Álcool) | o teor alcoólico percentual do vinho. |
 | quality (Qualidade) | variável de saída (com base em dados sensoriais) que poderiam ser de 0 a 10 sendo zero muito ruim e 10 muito excelente. |
 
-
 ```{r labels, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
 
 attr(Vinhos$fixedacidity, 'label') <- 'acidez fixa'
@@ -75,7 +82,7 @@ attr(Vinhos$Vinho, 'label') <- 'tipo do vinho'
 Vinhos
 ```
 
-No sumário das variáveis podemos notar alguns atributos com grande aplitude sugerindo a presença de outliers, como por exemplo: o açucar residual, a acidez cítrica, o dióxido de exofre total, o dióxido de enxofre livre, o álcool. Podemos notar que na nossa base de dados temos avaliados muito mais vinhos brancos do que tintos.
+No sumário das variáveis podemos notar alguns atributos com grande amplitude sugerindo a presença de outliers, como por exemplo: o açucar residual, a acidez cítrica, o dióxido de exofre total, o dióxido de enxofre livre, o álcool. Podemos notar que na nossa base de dados temos avaliados muito mais vinhos brancos do que tintos.
 
 ```{r sumario, echo=FALSE, message=FALSE, warning=FALSE}
 summary(Vinhos)
@@ -161,6 +168,7 @@ plot_ly(x = Vinhos$volatileacidity, type = 'histogram')
 ```
 
 Na comparação entre os vinhos tintos e brancos podemos verificar uma certa disparidade na maioria dos atributos exceto para a qualidade e o álcool.
+
 ```{r comp_tinto_branco, echo=FALSE, message=FALSE, warning=FALSE}
 
 par (mfrow=c(3,4))
@@ -333,8 +341,6 @@ qplot(y=quality,x=
 
 Podemos dizer que os resíduos do modelo não são simétricos, mas possuem uma distribuição normal. No gráfico abaixo podemos verificar que os residuos se distribuem aleatoriamente em torno de zero ao longo da reta, portanto podemos afirmar que o modelo de regressão está adequado.
 
-
-
 ```{r regressao_linear_qualidade}
 
 plot(modelo_rl$residuals)
@@ -349,6 +355,7 @@ hist(residuals(modelo_rl))
 Analisamos os residuos e identificamos possíveis outliers. Vamos eliminar as observações cujos resíduos estiverem acima de 2 e abaixo de -2.
 
 O segundo modelo de regressão linear produzido conta com o R2 ajustado de 75,48%; um modelo indicando uma boa correlação.
+
 ```{r}
 
 white_sresiduos <- white_rmoutliers[(residuals(modelo_rl) < 2)&(residuals(modelo_rl) > -2),]
@@ -463,6 +470,7 @@ rpart.plot(modelo_Valor_tree, type=4, extra=1, under=FALSE, clip.right.labs=TRUE
 ```
 
 Avaliando a raiz do erro médio quadrático (RMSE) pudemos verificar que modelo apresentou um resultado melhor para explicar os dados que geraram o modelo, apresenta baixo poder preditivo.
+
 ```{r preditivo_tree}
 val_amostra_tree <- predict(modelo_Valor_tree,interval = "prediction", level = 0.95) 
 mse_tree <- mean((quality - val_amostra_tree)^2)
@@ -496,10 +504,137 @@ O modelo mais indicado para predição de resultados de qualidade é a regressã
 
 ## Modelo de Árvore de Decisão
 
+ Árvores de decisão são modelos estatísticos que utilizam um treinamento supervisionado para a classificação e previsão de dados. Em outras palavras, em sua construção é utilizado um conjunto de treinamento formado por entradas e saídas. Estas últimas são as classes. Estes modelos utilizam a estratégia de dividir para conquistar: um problema complexo é decomposto em sub-problemas mais simples e recursivamente esta técnica é aplicada a cada sub-problema (Gama, 2004). As árvores de decisão estão entre os mais populares algoritmos de inferência e tem sido aplicado em várias áreas como, por exemplo, diagnóstico médico e risco de crédito (Mitchell, 1997), e deles pode-se extrair regras do tipo “se-então” que são facilmente compreendidas.
 
+O modelo para a base de qualidade de vinhos, com a variável dependente "quality"  estabeleceu como variável independente e mais significativa o alcohol seguido por density, volatileacidity, density, chlorides, fixedacidity, totalsulfurdioxide, pH e citricacid.
+
+```{r convert_fator}
+
+white_rmoutliers$fator_qualidade <- factor(quality,levels = c(3,4,5,7,8,9),labels = c("Ruim","Ruim","Ruim","Bom","Bom","Bom"))
+
+#Amostra
+
+prt <- 2/3
+set.seed(20)
+treino <- sample(1:NROW(white_rmoutliers), as.integer(prt*NROW(white_rmoutliers)))
+trainData <- white_rmoutliers[treino,]
+testData  <- white_rmoutliers[-treino,]
+
+
+modelo_tree  <- rpart(fator_qualidade ~
+                              alcohol
+                            + chlorides
+                            +citricacid
+                            +density
+                            +fixedacidity
+                            +pH
+                            +sulphates
+                            +totalsulfurdioxide
+                            +volatileacidity
+                            , data=trainData, cp = 0.001,maxdepth=10)
+
+modelo_tree$variable.importance
+
+```
+
+
+
+```{r amostras}
+prop.table(table(trainData$fator_qualidade))
+prop.table(table(testData$fator_qualidade))
+```
+
+Nas folhas e nós da árvore são identificados os resultados prováveis, a probabilidade de ocorrência e não ocorrência do dado resultado e o percentual de observações da amostra sujeitas àquele resultado. 
+
+```{r arvore_decisao}
+rpart.plot(modelo_tree, type=4, extra=104, under=FALSE, clip.right.labs=TRUE,
+           fallen.leaves=FALSE,   digits=2, varlen=-10, faclen=10,
+           cex=0.4, tweak=1.7,
+           compress=TRUE,
+           snip=FALSE)
+```
+
+Rodamos o modelo em uma amostra aleatória da base de vinhos brancos para valiar o poder preditivo.
+
+```{r}
+yprob <- predict(modelo_tree,testData)
+hist(yprob)
+```
+
+Vimos na matriz de confusão a quantidade de elementos que o modelo errou na predição. Foram 14 erros de uma base de 121 observações existentes na amostra.
+
+```{r}
+pred_class <- predict(modelo_tree ,testData , type = "class")
+Campanha.matriz.de.confusao<-table(white_rmoutliers$fator_qualidade[-treino],pred_class)
+Campanha.matriz.de.confusao
+```
+
+O modelo apresentou uma acurácia de 88,43 %
+
+```{r perc_erro}
+diagonal <- diag(Campanha.matriz.de.confusao)
+perc.erro <- 1 - sum(diagonal)/sum(Campanha.matriz.de.confusao)
+perc.erro
+```
 
 
 ## Modelo de Regressão Logística
 
+A regressão logística busca uma função logística através da ponderação e representatividade das variáveis que explicam um dado resultado, estabelecendo uma probabilidade de ocorrência de um evento. Nesse caso buscamos saber se um vinho é bom através de regressão logística considerando as variáveis alcohol, density, fixedacidity e volatileacidity que apresentaram maior significância para o algoritmo.
+
+```{r }
+modelo_log<-glm(fator_qualidade ~ alcohol
+                +density
+                +fixedacidity
+                +volatileacidity
+                , data=trainData, family=binomial(link=logit))
+summary(modelo_log)
+```
+
+A distribuição de percentual do modelo treinado.
+
+```{r predito}
+predito<-fitted(modelo_log)
+summary(predito)
+hist(predito)
+```
 
 
+
+```{r faixas_probabil}
+fx_predito <- cut(predito, breaks=c(0,0.10,0.20,0.30,0.40,0.50,0.60,0.70,0.80,0.90,1), right=F)
+
+plot(fx_predito , white_rmoutliers$fator_qualidade[treino])
+```
+
+```{r mconfusao, message=FALSE, warning=FALSE}
+attach(testData)
+Predito_teste<-predict(modelo_log, testData)
+
+fx_predito1 <- cut(Predito_teste, 
+                   breaks=c(0,0.50,1)
+                   , right=F)
+
+MC <- table( white_rmoutliers$fator_qualidade[-treino],  fx_predito1 , deparse.level = 1) 
+show(MC)  
+
+```
+
+O modelo apresentou uma acurácia de 55%.
+
+```{r acuracia}
+ACC = sum(diag(MC))/sum(MC)
+show(ACC)
+```
+
+## Outras Técnicas
+
+#### Nesta atividade usamos somente algumas técnicas supervisionadas,
+
+### Supervisionadas
+a)    quais outras técnicas supervisionadas vocês indicariam como adequadas para esta análise?
+SVM (Support Vector Machine):  um conceito na ciência da computação para um conjunto de métodos do aprendizado supervisionado que analisam os dados e reconhecem padrões, usado para classificação e análise de regressão. O SVM padrão toma como entrada um conjunto de dados e prediz, para cada entrada dada, qual de duas possíveis classes a entrada faz parte, o que faz do SVM um classificador linear binário não probabilístico. Dados um conjunto de exemplos de treinamento, cada um marcado como pertencente a uma de duas categorias, um algoritmo de treinamento do SVM constrói um modelo que atribui novos exemplos a uma categoria ou outra. Por ser binário, vinho bom ou vinho ruim, seria um modelo a ser aplicado.
+
+### Não Supervisionadas
+b)     e, das técnicas Não Supervisionadas, quais?
+Considerando que o objetivo do uso de uma técnica não supervsionada é encontrar padrões em dados sem rótulo, não haveria necessidade de seu uso por que as classificações e rótulos desta análise estão bem definidos.
