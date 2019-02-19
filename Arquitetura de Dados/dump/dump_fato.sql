@@ -1,5 +1,5 @@
 /* dump da tabela fato_loc
-necessário realizar o dump das dimensões 
+necessário realizar o dump das dimensoes 
 antes de realizar esse dump */
 insert into fato_loc (day_id ,
     cd_cliente,
@@ -99,5 +99,4 @@ SELECT
     media_dias_locado,
     media_dias_ocioso
   FROM
-    view_fato2
-    );
+    view_fato2);
