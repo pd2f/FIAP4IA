@@ -1,0 +1,10 @@
+# Consulta para Jogadores com melhores scout – nome, posição e clube
+db.medias_jogadores.aggregate([{$sort:{score_mean: -1}},{$lookup:{from:"jogadores",let:{id_atleta: "$player_id"},pipeline:[{$match:{$expr:{$eq:['$atletas.atleta_id','$$id_atleta']}}},{$project:{_id:0,'atletas.clube.id.full.name':1}}], as :"clube"}},{$match:{score_mean:{$gt:7}}},{ $project : {_id:0, player_nickname:1,player_position:1,clube:1}}])
+
+# Consulta das  Datas das partidas realizadas de um clube
+db.partidas.find({$or:[{home_team:{$eq:"Corinthians - SP"}},{away_team:{$eq:"Corinthians - SP"}}]},{_id:0,date:1})
+
+# Consulta do goleiro com a maior média de defesas difíceis
+db.medias_jogadores.find({player_position:"gol"},{_id:0,player_nickname:1}).sort({DD_mean:-1}).limit(1)
+
+

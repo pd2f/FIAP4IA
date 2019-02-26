@@ -1,0 +1,10 @@
+#https://raw.githubusercontent.com/henriquepgomide/caRtola/master/data/2018/2018-medias-jogadores.csv
+mongoimport -d cartola --type csv --file <Path>\Downloads\2018-medias-jogadores.csv -c medias_jogadores --headerline
+
+https://github.com/henriquepgomide/caRtola/blob/master/data/2018/2018_partidas.csv
+mongoimport -d cartola --type csv --file <Path>\Downloads\2018_partidas.csv -c partidas --headerline
+
+https://github.com/henriquepgomide/caRtola/blob/master/data/2018/2018_jogadores.csv
+mongoimport -d cartola --type csv --file <Path>\Downloads\2018_jogadores.csv -c jogadores --headerline
+
+
