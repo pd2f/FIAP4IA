@@ -1,0 +1,36 @@
+create
+(:pessoa{nome:'Joaquim', idade:30, sexo:'M'}),
+(:pessoa{nome:'Beto', idade:28, sexo:'M'}),
+(:pessoa{nome:'Ana', idade:26, sexo:'F'}),
+(:pessoa{nome:'Pedro', idade:28, sexo:'M'})
+(:pessoa{nome:'João', idade:31, sexo:'M'}),
+(:pessoa{nome:'Beatriz', idade:29, sexo:'F'})
+
+
+create(:assunto{tipo:'rock'})
+,(:assunto{tipo:'politica'})
+,(:assunto{tipo:'futebol'})
+
+
+
+match(p:pessoa{nome:'João'}),(p2:assunto{tipo:'futebol'}) create (p)-[:GOSTA]->(p2)
+match(p:pessoa{nome:'Ana'}),(p2:assunto{tipo:'futebol'}) create (p)-[:GOSTA]->(p2)
+match(p:pessoa{nome:'Joaquim'}),(p2:assunto{tipo:'futebol'}) create (p)-[:GOSTA]->(p2)
+match(p:pessoa{nome:'Joaquim'}),(p2:assunto{tipo:'rock'}) create (p)-[:GOSTA]->(p2)
+match(p:pessoa{nome:'Ana'}),(p2:assunto{tipo:'rock'}) create (p)-[:GOSTA]->(p2)
+match(p:pessoa{nome:'João'}),(p2:assunto{tipo:'rock'}) create (p)-[:GOSTA]->(p2)
+match(p:pessoa{nome:'Pedro'}),(p2:assunto{tipo:'rock'}) create (p)-[:GOSTA]->(p2)
+match(p:pessoa{nome:'Beatriz'}),(p2:assunto{tipo:'rock'}) create (p)-[:GOSTA]->(p2)
+match(p:pessoa{nome:'Beatriz'}),(p2:assunto{tipo:'politica'}) create (p)-[:GOSTA]->(p2)
+match(p:pessoa{nome:'João'}),(p2:assunto{tipo:'politica'}) create (p)-[:GOSTA]->(p2)
+match(p:pessoa{nome:'Joaquim'}),(p2:pessoa{nome:'Beto'}) create (p)-[:AMIGO]->(p2)
+match (n) return n
+with distinct n
+match(n:pessoa)-[:gosta]->(as:assunto) return n,count(as)
+
+
+match (cliente:pessoa)<-[:amigo]-(pivo:pessoa)-[:gosta]->(interesse:assunto) 
+with pivo,interesse
+match (alvo:pessoa)-[:gosta]->(similar:assunto)
+where  pivo<>alvo
+return alvo
