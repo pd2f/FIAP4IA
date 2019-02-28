@@ -1,18 +1,26 @@
+﻿#nodes de pessoas
 create
 (:pessoa{nome:'Joaquim', idade:30, sexo:'M'}),
 (:pessoa{nome:'Beto', idade:28, sexo:'M'}),
 (:pessoa{nome:'Ana', idade:26, sexo:'F'}),
-(:pessoa{nome:'Pedro', idade:28, sexo:'M'})
+(:pessoa{nome:'Pedro', idade:28, sexo:'M'}),
 (:pessoa{nome:'João', idade:31, sexo:'M'}),
 (:pessoa{nome:'Beatriz', idade:29, sexo:'F'})
 
-
+#nodes de gostos
 create(:assunto{tipo:'rock'})
 ,(:assunto{tipo:'politica'})
 ,(:assunto{tipo:'futebol'})
 
 
+#Nodes de pontos turísticos
+create(:local{nome:'Arena Corinthians'})
+,(:local{nome:'Alianz Parque'})
+,(:local{nome:'Palácio dos Bandeirantes'})
 
+
+
+##Montagem de base de gostos
 match(p:pessoa{nome:'João'}),(p2:assunto{tipo:'futebol'}) create (p)-[:GOSTA]->(p2)
 match(p:pessoa{nome:'Ana'}),(p2:assunto{tipo:'futebol'}) create (p)-[:GOSTA]->(p2)
 match(p:pessoa{nome:'Joaquim'}),(p2:assunto{tipo:'futebol'}) create (p)-[:GOSTA]->(p2)
@@ -24,13 +32,62 @@ match(p:pessoa{nome:'Beatriz'}),(p2:assunto{tipo:'rock'}) create (p)-[:GOSTA]->(
 match(p:pessoa{nome:'Beatriz'}),(p2:assunto{tipo:'politica'}) create (p)-[:GOSTA]->(p2)
 match(p:pessoa{nome:'João'}),(p2:assunto{tipo:'politica'}) create (p)-[:GOSTA]->(p2)
 match(p:pessoa{nome:'Joaquim'}),(p2:pessoa{nome:'Beto'}) create (p)-[:AMIGO]->(p2)
-match (n) return n
-with distinct n
-match(n:pessoa)-[:gosta]->(as:assunto) return n,count(as)
+
+##Grafo para fazer análise preditiva de pontos turísticos de acordo com o gosto 
+match(p:pessoa{nome:'João'}),(p2:local{nome:'Arena Corinthians'}) create (p)-[:VISITOU]->(p2)
+match(p:pessoa{nome:'Ana'}),(p2:local{nome:'Arena Corinthians'}) create (p)-[:VISITOU]->(p2)
+match(p:pessoa{nome:'Joaquim'}),(p2:local{nome:'Arena Corinthians'}) create (p)-[:VISITOU]->(p2)
+match(p:pessoa{nome:'Joaquim'}),(p2:local{nome:'Alianz Parque'}) create (p)-[:VISITOU]->(p2)
+match(p:pessoa{nome:'Ana'}),(p2:local{nome:'Alianz Parque'}) create (p)-[:VISITOU]->(p2)
+match(p:pessoa{nome:'João'}),(p2:local{nome:'Alianz Parque'}) create (p)-[:VISITOU]->(p2)
+match(p:pessoa{nome:'Pedro'}),(p2:local{nome:'Alianz Parque'}) create (p)-[:VISITOU]->(p2)
+match(p:pessoa{nome:'Beatriz'}),(p2:local{nome:'Alianz Parque'}) create (p)-[:VISITOU]->(p2)
+match(p:pessoa{nome:'Beatriz'}),(p2:local{nome:'Palácio dos Bandeirantes'}) create (p)-[:VISITOU]->(p2)
+match(p:pessoa{nome:'João'}),(p2:local{nome:'Palácio dos Bandeirantes'}) create (p)-[:VISITOU]->(p2)
 
 
-match (cliente:pessoa)<-[:amigo]-(pivo:pessoa)-[:gosta]->(interesse:assunto) 
-with pivo,interesse
-match (alvo:pessoa)-[:gosta]->(similar:assunto)
-where  pivo<>alvo
-return alvo
+
+
+# Algoritmo de recomendação mais generalista
+match (pivo:pessoa)-[f:GOSTA]->(interesse:assunto)
+match (alvo:pessoa)-[g:GOSTA]->(interesse)
+with alvo,count(g) as x,pivo
+where pivo<>alvo
+match(pivo)-[b:GOSTA]->(:assunto)
+with alvo,x,count(b) as a,pivo
+create (alvo)-[:RECOMENDADO_PARA]->(pivo)
+
+
+
+/*Alguns outras possibilidades*/
+
+# Algoritmo de recomendação baseado nos assuntos.O algoritmo buscas todos os assuntos que aos de um amigo e avalia
+outras pessoas na base que têm os mesmo interesses e recomenda um amigo e já recomenda ao amigo do amigo
+match (cliente:pessoa)<-[:AMIGO]-(pivo:pessoa)-[f:GOSTA]->(interesse:assunto)
+match (alvo:pessoa)-[g:GOSTA]->(interesse)
+with alvo,count(g) as x,pivo,cliente
+where pivo<>alvo
+match(pivo)-[b:GOSTA]->(:assunto)
+with alvo,x,count(b) as a,cliente,pivo
+where x=a
+create (alvo)-[:RECOMENDADO_PARA]->(cliente)
+create (alvo)-[:RECOMENDADO_PARA]->(pivo)
+
+
+# Algoritmo de recomendação mais seletiva
+outras pessoas na base que têm os mesmo interesses e recomenda um amigo e já recomenda ao amigo do amigo
+match (pivo:pessoa)-[f:GOSTA]->(interesse:assunto)
+match (alvo:pessoa)-[g:GOSTA]->(interesse)
+with alvo,count(g) as x,pivo
+where pivo<>alvo
+match(pivo)-[b:GOSTA]->(:assunto)
+with alvo,x,count(b) as a,pivo
+where x=a
+create (alvo)-[:RECOMENDADO_PARA]->(pivo)
+
+
+
+
+
+
+
